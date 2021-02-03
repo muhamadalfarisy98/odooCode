@@ -129,3 +129,18 @@ def tes_dummy(self):
 
 
 ```
+
+## calendar views xml
+```bash
+<!-- jadwal.ujian calendar view -->
+        <!-- <record id="jadwal_ujian_view_calendar" model="ir.ui.view">
+            <field name="name">jadwal.ujian.view.calendar</field>
+            <field name="model">jadwal.ujian</field>
+            <field name="arch" type="xml">
+                <calendar string="Session Calendar" date_start="start_date" date_stop="end_date" color="subject_id">
+                    <field name="semester"/>
+                </calendar>
+            </field>
+        </record> -->
+
+```
