@@ -1,3 +1,8 @@
+# REF
+1. https://www.odoo.com/id_ID/forum/help-1/tag/tutorial-1040/questions
+2. https://learnopenerp.blogspot.com/2017/12/python-function.html
+
+
 # odooCode
 source code note
 
