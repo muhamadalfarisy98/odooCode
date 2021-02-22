@@ -149,3 +149,27 @@ def tes_dummy(self):
         </record> -->
 
 ```
+
+
+## report
+```bash
+<!-- <div class="row">
+                        <div class="col-8"> 1. MOHON PEMBAYARAN DI TRANSFER KE REKENING</div>
+                        <div class="col-4">HORMAT KAMI,</div>
+                    </div> -->
+
+                    <!-- <div class="col-4" style="border: 1px solid black;">HORMAT KAMI,</div> -->
+                    <!-- <p class="col-6 bm-6">  </p>
+                    <p class="col-2 bm-6">hormat kami,  </p>
+
+
+                    <h3 class="text-center">This is the 3 equal columns divided as 12/3</h3>
+                    <div class="row">
+                        <div class="col-3"></div>
+                        <div class="col-3"></div>
+                        <div class="col-3" ></div>
+                        <div class="col-3" >hormat kami</div>
+                    </div> -->
+
+
+```
