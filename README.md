@@ -172,4 +172,18 @@ def tes_dummy(self):
                     </div> -->
 
 
+                    <div id="total" class="row justify-content-end">
+                        <div class="col-4">
+                            <table class="table table-sm">
+                                <tr class="border-black">
+                                    <td name="td_subtotal_label"><strong>Subtotal</strong></td>
+                                    <td class="text-right">
+                                        <span t-esc="doc.total_amount"
+                                        t-options='{"widget": "monetary", "display_currency": doc.invoice_ids.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
 ```
