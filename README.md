@@ -1,6 +1,8 @@
 # REF
 1. https://www.odoo.com/id_ID/forum/help-1/tag/tutorial-1040/questions
 2. https://learnopenerp.blogspot.com/2017/12/python-function.html
+3. https://stackoverflow.com/questions/12829608/text-align-class-for-inside-a-table
+4. https://getbootstrap.com/docs/4.1/content/tables/
 
 
 # odooCode
