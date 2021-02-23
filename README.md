@@ -3,6 +3,7 @@
 2. https://learnopenerp.blogspot.com/2017/12/python-function.html
 3. https://stackoverflow.com/questions/12829608/text-align-class-for-inside-a-table
 4. https://getbootstrap.com/docs/4.1/content/tables/
+5. https://github.com/younismahsud/odoodiscussions/tree/master/openacademy/reports
 
 
 # odooCode
