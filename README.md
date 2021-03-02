@@ -1,4 +1,7 @@
-# REF
+# ODOO
+source code note
+
+## REFERENSI
 1. https://www.odoo.com/id_ID/forum/help-1/tag/tutorial-1040/questions
 2. https://learnopenerp.blogspot.com/2017/12/python-function.html
 3. https://stackoverflow.com/questions/12829608/text-align-class-for-inside-a-table
@@ -6,10 +9,7 @@
 5. https://github.com/younismahsud/odoodiscussions/tree/master/openacademy/reports
 
 
-# odooCode
-source code note
-
-# INHERITANCE
+## INHERITANCE
 extend existing model in a modular way.
 1. Modifikasi behavior nya
 ```bash
@@ -27,36 +27,135 @@ ada model mobils, terdiri atas inheritansi ban, casing mobil
 ```
 multiple inheritance
 ```
-# DOMAIN
+## DOMAIN
 buat filter fieldnya berdasarkan kondisi tertentu atau nilai dari field tertentu
 ```bash
 domain="[('name','=',Faris)]"
 ```
-# COMPUTE FIELDs
+## COMPUTE FIELDs
 melakukan komputasi saat itu juga bergantung dengan nilai suatu fields
 ```bash
 name=Fields.Char(compute=_get_name)
 @api.depends('....')
 def _get_name(self):
         .....
-       
+name = fields.Char(compute='_compute_name')
+value = fields.Integer()
+
+@api.depends('value')
+def _compute_name(self):
+     for record in self:
+        record.name = "Record with value %s" % record.value
 ```
-# DEFAULT VALUES
+## DEFAULT VALUES
 ```bash
 user_id=m2o ('res.users',default= lambda self:self.env.user)
-date=Fields.Date(default=Fields.Date.today())
+date=Fields.Date(default=Fields.Date.today)
 active=Fields.Boolean(default=True)
 ```
 
-# SELF ENV 
+## SELF ENV 
 memberikan akses untuk request parameeter
 ```
 self.env.cr atau self._cr >> database cursor object (untuk Querying DB)
 self.env.uid atau self._uid >> current's user db id
 self.env.user >> current's user record
 self.env.context atau self._context >> context dict
+self.env['model_name']
+```
+## ONCHANGE
+biasa dipakai buat raise error atau warning message jika input dari user ada yg ngaco
+```bash
+@api.onchange('amount', 'unit_price')
+def _onchange_price(self):
+    # set auto-changing field
+    self.price = self.amount * self.unit_price
+    # Can optionally return a warning and domains
+    return {
+        'warning': {
+            'title': "Something bad happened",
+            'message': "It was very bad indeed",
+        }
+    }
+```
+## CONSTRAINS
+ngecek via python code kalau salah input, raise exception
+```bash
+@api.constrains('age')
+def _check_something(self):
+    for record in self:
+        if record.age > 20:
+            raise ValidationError("Your record is too old: %s" % record.age)
 ```
 
+## ORM API
+- Search method, return value = id model. mirip kaya select * from models where blablabl. search_count juga ada
+```bash
+self.env['res.partner'].search([['is_company', '=', True], ['customer', '=', True]])
+res.partner(7, 18, 12, 14, 17, 19, 8, 31, 26, 16, 13, 20, 30, 22, 29, 15, 23, 28, 74)
+```
+- Browse method, return valuenya object (jadi bisa cek isi field2nya)
+```bash
+stud_obj=self.env['school_student'].browse(3,)
+stud_obj.name
+stud_obje.fields
+```
+
+## Override method ORM
+- Create
+```bash
+def create(self,vals):
+#vals dictionary
+        vals['active']=True
+        rtn=super(nama_class,self).create(vals)
+        rtn.active=True #atau
+        return rtn
+```
+- Write
+dipakai saat update/edit record
+```bash
+def write(self,vals):
+        rtn=super(nama_class,self).write(vals)
+```
+kalau mau edit
+```bash
+stud_list= self.env['school.student].browse([id])
+stud_list.write({'active':True})
+self._cr.commit() #update db
+```
+
+## Filter
+return records in self satisfying func
+```bash
+# only keep records whose company is the current user's
+records.filtered(lambda r: r.company_id == user.company_id)
+
+# only keep records whose partner is a company
+records.filtered("partner_id.is_company")
+```
+
+
+## SQL Execution
+cr attribute on env is the cursor fot the current db transaction and allow executing SQL directly, for queries which are difficult to express using the ORM (complex join) or performance reasons.
+
+```bash
+self.env.cr.execute(query)
+self._cr.commit()
+```
+## Alternate fetching data
+```bash
+def get_data(self):
+       appointments=self.env['..'].search([])
+    for r in appointments:
+        print(r.name) dll
+```
+
+
+## Hide Create/edit option di m2o field
+di xml
+```bash
+<field name="" options="{'no_create_edit':True,'no_create':True,'no_open':True}"
+```
 ## DUMMY TEST
 ```bash
 def create_invoices(self):
