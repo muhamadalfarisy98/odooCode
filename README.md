@@ -9,6 +9,55 @@
 # odooCode
 source code note
 
+# INHERITANCE
+extend existing model in a modular way.
+1. Modifikasi behavior nya
+```bash
+# menambahkan fitur, tersimpan di tabel yang sama
+_name=obj1
+_inherit=obj1 
+
+# mengkopi model yang sudah ada, disimpan ditable new
+_name=new
+_inherit=obj1
+```
+2. Delegasi
+menggabungkan beberapa inheritance, semisal
+ada model mobils, terdiri atas inheritansi ban, casing mobil
+```
+multiple inheritance
+```
+# DOMAIN
+buat filter fieldnya berdasarkan kondisi tertentu atau nilai dari field tertentu
+```bash
+domain="[('name','=',Faris)]"
+```
+# COMPUTE FIELDs
+melakukan komputasi saat itu juga bergantung dengan nilai suatu fields
+```bash
+name=Fields.Char(compute=_get_name)
+@api.depends('....')
+def _get_name(self):
+        .....
+       
+```
+# DEFAULT VALUES
+```bash
+user_id=m2o ('res.users',default= lambda self:self.env.user)
+date=Fields.Date(default=Fields.Date.today())
+active=Fields.Boolean(default=True)
+```
+
+# SELF ENV 
+memberikan akses untuk request parameeter
+```
+self.env.cr atau self._cr >> database cursor object (untuk Querying DB)
+self.env.uid atau self._uid >> current's user db id
+self.env.user >> current's user record
+self.env.context atau self._context >> context dict
+```
+
+## DUMMY TEST
 ```bash
 def create_invoices(self):
         active_id = self._context.get('active_id')
