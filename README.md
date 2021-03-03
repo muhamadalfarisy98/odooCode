@@ -156,6 +156,38 @@ di xml
 ```bash
 <field name="" options="{'no_create_edit':True,'no_create':True,'no_open':True}"
 ```
+## Nested Search
+```bash
+    [    '|'
+         "&",
+         ["start_datetime", "<",  '2020-01-07 09:00:00'],
+         ["stop_datetime", ">=", '2020-01-07 09:00:00'],
+         '|',
+         "&",
+         ["start_datetime", "<=", '2020-01-07 11:00:00'],
+         ["stop_datetime", ">=", '2020-01-07 11:00:00'],
+         '|',
+         "&",
+         ["start_datetime", ">=", '2020-01-07 09:00:00'],
+         ["start_datetime", "<=",'2020-01-07 11:00:00'],
+         "&",
+         ["stop_datetime", ">=",  '2020-01-07 09:00:00'],
+         ["stop_datetime", "<=",'2020-01-07 11:00:00']
+     ] 
+
+```
+akan sama dengan
+```bash
+ (start_datetime <= '2020-01-07 09:00:00' and '2020-01-07 09:00:00' <= stop_datetime)
+     or
+    (start_datetime <= '2020-01-07 11:00:00' and '2020-01-07 11:00:00' <= stop_datetime)
+    or 
+    ('2020-01-07 09:00:00' <= start_datetime and start_datetime <= '2020-01-07 11:00:00') 
+    or
+    ('2020-01-07 09:00:00' <= stop_datetime and stop_datetime <= '2020-01-07 11:00:00')
+
+```
+
 ## DUMMY TEST
 ```bash
 def create_invoices(self):
