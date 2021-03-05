@@ -168,6 +168,39 @@ self._cr.commit()
             ))
         return data
 ```
+## Manipulating Queries
+- Where Query
+```bash
+where_query = ["am.state = 'posted'",
+                       'NOT aml.exclude_from_invoice_tab']
+date_from=2020
+where_query.append("aml.date >= '%s'" % date_from)
+where_query = 'WHERE ' + ' AND '.join(where_query)
+# output:
+WHERE am.state = 'posted' AND NOT aml.exclude_from_invoice_tab AND aml.date >= '2020'
+```
+- Implement where queries
+```bash
+query = """
+            SELECT
+                CASE WHEN cust.city IS NULL THEN '' ELSE cust.city END AS name,
+                cust.city_id AS id,
+                COALESCE(SUM(aml.price_subtotal * -aml.balance / ABS(aml.balance)),0) AS revenue
+            FROM
+                account_move_line aml
+                JOIN account_move am ON am.id = aml.move_id AND am.move_type IN ('out_invoice','out_refund')
+                JOIN product_product pp ON pp.id = aml.product_id
+                JOIN res_users ru ON ru.id = am.invoice_user_id
+                JOIN res_partner rp ON rp.id = ru.partner_id
+                JOIN res_partner cust ON cust.id = aml.partner_id
+                JOIN sale_order_line_invoice_rel solir ON solir.invoice_line_id = aml.id
+            %(where_query)s
+            GROUP BY
+                cust.city_id,
+                cust.city
+        """ % {'where_query': where_query}
+```
+
 ## Alternate fetching data
 ```bash
 def get_data(self):
