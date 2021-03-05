@@ -91,7 +91,13 @@ def _check_something(self):
 ## ORM API
 - Search method, return value = id model. mirip kaya select * from models where blablabl. search_count juga ada
 ```bash
-self.env['res.partner'].search([['is_company', '=', True], ['customer', '=', True]])
+am_ids=self.env['account.move'].sudo().search(
+            [
+                ('invoice_date','>=',self.date_from),
+                ('invoice_date','<=',self.date_to),
+                ('invoice_user_id.name','in',self.get_salesperson_cek()),
+            ]
+        )
 res.partner(7, 18, 12, 14, 17, 19, 8, 31, 26, 16, 13, 20, 30, 22, 29, 15, 23, 28, 74)
 ```
 - Browse method, return valuenya object (jadi bisa cek isi field2nya)
@@ -100,6 +106,23 @@ stud_obj=self.env['school_student'].browse(3,)
 stud_obj.name
 stud_obje.fields
 ```
+## METHOD DECORATOR
+- @api.model
+self tidak mempunyai ids karena record belum disimpan ke database
+```bash
+@api.model
+def _sale_category_ids(self):
+    return self.env['product.sale.category'].sudo().search([]).ids
+    
+sale_category_ids = fields.Many2many(
+        'product.sale.category', 'wizard_sale_report_product_sale_category',
+        'wizard_id', 'sale_category_id', 'Kategori Omzet', copy=False, default=_sale_category_ids)
+```
+@api.multi : method berisi recordset. Artinya self bisa berisi lebih dari satu record
+@api.depends(‘nama_field1′,’nama_field2’) : merupakan daftar field yang dapat men trigger method. Artinya jika field-field yang ditulis di depends ini valuenya berubah maka method akan dijalankan/compute. Biasanya dipakai pada field compute
+@api.constrains(‘nama_field1′,’nama_field2’) : hampir sama dengan api.depends, fungsinya untuk melakukan pengecekan validasi data
+@api.onchange(‘nama_field1′,’nama_field2’) : triggernya hampir sama seperti api.depends, fungsinya untuk memberikan value field, domain atau memberikan warning
+
 
 ## Override method ORM
 - Create
@@ -250,9 +273,95 @@ akan sama dengan
 ![btn](https://user-images.githubusercontent.com/23287190/110078270-1256ce80-7dba-11eb-8e68-7632ec21022a.png)
 ```bash
 <button name="action_download_button" string="Print" type="object" icon="fa-print" />
+
+<footer>
+	<button string='Download' name="action_download" type="object" class="btn-primary"
+		icon="fa-download" context="{'account_revcogs':1}" />
+	<button string="Tutup" class="btn-default" special="cancel" />
+</footer>
 ```
 
+## penulisan & di string
+```bash
+&amp; -> &
+```
+## Wizard Menu  action ex
+```bash
+<record id="view_wizard_account_report_sale_invoice_form" model="ir.ui.view">
+		<field name="name">wizard.account.report.sale_invoice.form</field>
+		<field name="model">wizard.account.report</field>
+		<field name="arch" type="xml">
+			<form>
+				<group string="Laporan Invoice Penjualan">
+					<label for="date_from" string="Periode" />
+					<div class="o_row" name="date_from">
+						<field name="date_from" nolabel="1" class="oe_inline" required="1" />
+						<label for="date_to" string="-" />
+						<field name="date_to" nolabel="1" class="oe_inline" required="1" />
+					</div>
+					<field name="partner_ids" widget="many2many_tags" domain="[('customer_rank','&gt;',0)]" />
+					<field name="user_ids" widget="many2many_tags" domain="[('is_salesperson','=',True)]" />
+				</group>
+				<footer>
+					<button string='Download' name="action_download" type="object" class="btn-primary"
+						icon="fa-download" context="{'account_sale_invoice':1}" />
+					<button string="Tutup" class="btn-default" special="cancel" />
+				</footer>
+			</form>
+		</field>
+	</record>
+	<record model="ir.actions.act_window" id="action_wizard_account_report_sale_invoice">
+		<field name="name">Invoice Penjualan</field>
+		<field name="res_model">wizard.account.report</field>
+		<field name="view_mode">form</field>
+		<field name="target">new</field>
+		<field name="view_id" ref="view_wizard_account_report_sale_invoice_form" />
+	</record>
+```
+## Membuat Unique Sequence
+```bash
+<record id="sequence_account_payment_receipt" model="ir.sequence">
+			<field name="name">Kwitansi Pembayaran</field>
+			<field name="code">kwitansi.code.sequence</field>
+			<field name="prefix">SR/%(month)s/%(year)s/</field>
+			<field name="padding">4</field>
+			<field eval="True" name="use_date_range" />
+</record>
 
+@api.model
+    def create(self, vals):
+        if vals.get('name', 'New') == 'New':
+            vals['name'] = self.env['ir.sequence'].next_by_code(
+                'kwitansi.code.sequence') or 'New'
+        result = super(PaymentReceipt, self).create(vals)
+        return result
+```
+## IR SEQUENCE
+![ir seq](https://user-images.githubusercontent.com/23287190/110117744-e0f6f680-7deb-11eb-9375-c782fd03aff5.png)
+``
+sequence_id = fields.Many2one('ir.sequence', 'Format Penomoran')
+
+    @api.model
+    def create(self, vals):
+        if not vals.get('sequence_id'):
+            vals.update({
+                'sequence_id': self.sudo()._create_sequence(vals).id
+            })
+        return super(AccountAssetCategory, self).create(vals)
+
+    @api.model
+    def _create_sequence(self, vals):
+        prefix = vals['name'].upper()
+        seq = {
+            'name': vals['name'] + '/',
+            'implementation': 'no_gap',
+            'prefix': prefix,
+            'padding': 4,
+            'number_increment': 1,
+            'use_date_range': True,
+        }
+        return self.env['ir.sequence'].create(seq)
+``
 
 ## DUMMY TEST
 ```bash
@@ -310,6 +419,21 @@ def tes_dummy(self):
         rtn['ayat_selesai']='3'
         print('rtn update',rtn)
         return rtn
+    line_ids = fields.One2many(
+        'wizard.sale.report.line', 'wizard_id', 'Group Omzet')
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super(WizardSaleReport, self).default_get(fields_list)
+        if 'line_ids' in fields_list:
+            res['line_ids'] = [(0, 0, {
+                'sequence': x.id,
+                'name': x.name,
+                'sale_category_ids': [(4, x.id)],
+            }) for x in self.env['product.sale.category'].sudo().search([])]
+        return res
+    
+    
     # @api.model 
     # def create(self,vals):
     #     print('create vals',vals)
@@ -324,7 +448,12 @@ def tes_dummy(self):
     #     print('write rtn',rtn)
     #     return rtn
 ```
-
+## selection fields
+```bash
+expand_mode = fields.Selection([
+        ('summary', 'Summary'),
+        ('details', 'Details')], string='Mode', default='summary', required=True)
+```
 ## constrain
 
 ```bash
