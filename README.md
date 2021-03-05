@@ -141,6 +141,32 @@ cr attribute on env is the cursor fot the current db transaction and allow execu
 ```bash
 self.env.cr.execute(query)
 self._cr.commit()
+        self.flush()
+        query = """
+            SELECT
+                ppdr.id
+            FROM
+                product_pricelist_discount_regular ppdr
+            WHERE
+                ppdr.active=True
+            """
+        self.env.cr.execute(query)
+        result = [x[0] for x in self._cr.fetchall()]
+        result = self.env['product.pricelist.discount.regular'].sudo().browse(
+            result)
+        data = []
+        for regular in result:
+            data.append((
+                regular.name,
+                regular.payment_type,
+                regular.min_quantity,
+                regular.date_start,
+                regular.date_end,
+                regular.discount_percent,
+                regular.count_partner,
+                regular.applied_on,
+            ))
+        return data
 ```
 ## Alternate fetching data
 ```bash
