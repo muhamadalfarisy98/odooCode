@@ -246,6 +246,13 @@ akan sama dengan
     ('2020-01-07 09:00:00' <= stop_datetime and stop_datetime <= '2020-01-07 11:00:00')
 
 ```
+## button icon
+![btn](https://user-images.githubusercontent.com/23287190/110078270-1256ce80-7dba-11eb-8e68-7632ec21022a.png)
+```bash
+<button name="action_download_button" string="Print" type="object" icon="fa-print" />
+```
+
+
 
 ## DUMMY TEST
 ```bash
