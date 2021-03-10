@@ -363,6 +363,24 @@ sequence_id = fields.Many2one('ir.sequence', 'Format Penomoran')
         return self.env['ir.sequence'].create(seq)
 ``
 
+## Setting TimeZone UTC-> region Asia/Jakarta
+```bash
+from dateutil import tz
+from datetime import datetime, time
+from _collections import defaultdict
+from odoo.tools.misc import DEFAULT_SERVER_DATETIME_FORMAT
+
+def set_tz(self,date_convert, tz_from, tz_to):
+        res = date_convert
+        if date_convert:
+            res = date_convert.replace(tzinfo=tz.gettz(tz_from))
+            res = res.astimezone(tz.gettz(tz_to))
+        return res
+	
+date_from = self.set_tz(date_sj,'UTC', self.env.user.tz or 'Asia/Jakarta' ).date()
+            return date_from.strftime('%m/%d/%Y')
+```
+
 ## DUMMY TEST
 ```bash
 def create_invoices(self):
